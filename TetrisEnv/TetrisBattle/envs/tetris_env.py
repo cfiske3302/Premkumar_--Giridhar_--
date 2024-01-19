@@ -7,15 +7,21 @@ from gym import spaces
 from gym import utils
 from gym.utils import seeding
 
-from TetrisBattle.envs.tetris_interface import TetrisInterface, TetrisDoubleInterface, \
-    TetrisSingleInterface
+from TetrisBattle.envs.tetris_interface import (
+    TetrisInterface,
+    TetrisDoubleInterface,
+    TetrisSingleInterface,
+)
+
 
 class TetrisEnv(gym.Env, abc.ABC):
     """Custom Environment that follows gym interface"""
-    metadata = {'render.modes': ['human', 'rgb_array'], 
-                'obs_type': ['image', 'grid']}
 
-    def __init__(self, interface, gridchoice="none", obs_type="image", mode="rgb_array"):
+    metadata = {"render.modes": ["human", "rgb_array"], "obs_type": ["image", "grid"]}
+
+    def __init__(
+        self, interface, gridchoice="none", obs_type="image", mode="rgb_array"
+    ):
         super(TetrisEnv, self).__init__()
 
         # Define action and observation space
@@ -23,9 +29,9 @@ class TetrisEnv(gym.Env, abc.ABC):
 
         # Example when using discrete actions:
 
-        self.game_interface = interface(gridchoice=gridchoice, 
-                                        obs_type=obs_type, 
-                                        mode=mode)
+        self.game_interface = interface(
+            gridchoice=gridchoice, obs_type=obs_type, mode=mode
+        )
 
         self._n_actions = self.game_interface.n_actions
 
@@ -40,11 +46,19 @@ class TetrisEnv(gym.Env, abc.ABC):
         self.seed()
 
         if obs_type == "image":
-            self.observation_space = spaces.Box(low=0, high=255, 
-                shape=self.game_interface.screen_size() + [3], dtype=np.uint8)
+            self.observation_space = spaces.Box(
+                low=0,
+                high=255,
+                shape=self.game_interface.screen_size() + [3],
+                dtype=np.uint8,
+            )
         elif obs_type == "grid":
-            self.observation_space = spaces.Box(low=0, high=1, 
-                shape=list(self.game_interface.get_seen_grid().shape), dtype=np.float32)
+            self.observation_space = spaces.Box(
+                low=0,
+                high=1,
+                shape=list(self.game_interface.get_seen_grid().shape),
+                dtype=np.float32,
+            )
 
         self.reset()
 
@@ -59,9 +73,8 @@ class TetrisEnv(gym.Env, abc.ABC):
 
     def take_turns(self):
         return self.game_interface.take_turns()
-        
-    def reset(self):
 
+    def reset(self):
         self.accum_rewards = 0
         self.infos = {}
         # Reset the state of the environment to an initial state
@@ -69,30 +82,32 @@ class TetrisEnv(gym.Env, abc.ABC):
         ob = self.game_interface.reset()
 
         return ob
-    
-    def render(self, mode='human', close=False):
-        return None
+
+    def render(self, mode="human", close=False):
+        # return None
         # # Render the environment to the screen
-        # img = self.get_screen_shot()
+        img = self.game_interface.get_screen_shot()
+        if mode == "rgb_array":
+            return img
+        elif mode == "human":
+            from gym.envs.classic_control import rendering
 
-        # if mode == 'rgb_array':
-        #     return img
-        # elif mode == 'human':
-        #     from gym.envs.classic_control import rendering
-        #     if self.viewer is None:
-        #         self.viewer = rendering.SimpleImageViewer()
-        #     self.viewer.imshow(img)
+            if not hasattr(self, "viewer"):
+                self.viewer = rendering.SimpleImageViewer()
+            self.viewer.imshow(img)
 
-        #     return self.viewer.isopen
+            return self.viewer.isopen
 
 
 class TetrisSingleEnv(TetrisEnv):
     """Custom Environment that follows gym interface"""
-    metadata = {'render.modes': ['human', 'rgb_array'], 
-                'obs_type': ['image', 'grid']}
+
+    metadata = {"render.modes": ["human", "rgb_array"], "obs_type": ["image", "grid"]}
 
     def __init__(self, gridchoice="none", obs_type="image", mode="rgb_array"):
-        super(TetrisSingleEnv, self).__init__(TetrisSingleInterface, gridchoice, obs_type, mode)
+        super(TetrisSingleEnv, self).__init__(
+            TetrisSingleInterface, gridchoice, obs_type, mode
+        )
 
     def step(self, action):
         # Execute one time step within the environment
@@ -106,7 +121,7 @@ class TetrisSingleEnv(TetrisEnv):
         self.accum_rewards += reward
 
         if end:
-            infos['episode'] = {'r': self.accum_rewards}
+            infos["episode"] = {"r": self.accum_rewards}
 
         # if len(infos) != 0:
         #     reward += infos['height_sum'] / 50 / 1000
@@ -119,14 +134,17 @@ class TetrisSingleEnv(TetrisEnv):
 
         return ob, reward, end, infos
 
+
 class TetrisDoubleEnv(TetrisEnv):
     """Custom Environment that follows gym interface"""
-    metadata = {'render.modes': ['human', 'rgb_array'], 
-                'obs_type': ['image', 'grid']}
+
+    metadata = {"render.modes": ["human", "rgb_array"], "obs_type": ["image", "grid"]}
 
     def __init__(self, gridchoice="none", obs_type="image", mode="rgb_array"):
-        super(TetrisDoubleEnv, self).__init__(TetrisDoubleInterface, gridchoice, obs_type, mode)
-  
+        super(TetrisDoubleEnv, self).__init__(
+            TetrisDoubleInterface, gridchoice, obs_type, mode
+        )
+
     def step(self, action):
         # Execute one time step within the environment
 
@@ -143,19 +161,18 @@ class TetrisDoubleEnv(TetrisEnv):
 
         return ob, reward, end, infos
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     import time
 
     env = TetrisSingleEnv(gridchoice="none", obs_type="grid", mode="human")
 
     ob = env.reset()
-    
+
     start = time.time()
 
     last = 0
     for i in range(200000):
-
         # if i % 5 == 0:
         #     env.take_turns()
         #     action = env.random_action()
@@ -173,13 +190,15 @@ if __name__ == "__main__":
         # print(reward)
         if len(infos) != 0:
             print(infos)
-        
+
         # im = Image.fromarray(ob)
         # im.save("samples/%d.png" % i)
         if done:
             print(time.time() - start)
             print(i)
-            print("avg number for loop per second: ", (i - last) / (time.time() - start))
+            print(
+                "avg number for loop per second: ", (i - last) / (time.time() - start)
+            )
             start = time.time()
             last = i
 

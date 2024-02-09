@@ -76,6 +76,7 @@ class TetrisEnv(gym.Env, abc.ABC):
 
     def reset(self):
         self.accum_rewards = 0
+        self.n_steps = 0
         self.infos = {}
         # Reset the state of the environment to an initial state
 
@@ -119,9 +120,13 @@ class TetrisSingleEnv(TetrisEnv):
         #     reward -= infos['height_sum'] * 0.2
 
         self.accum_rewards += reward
+        self.n_steps += 1
+
+        #justin was here
+        end = bool(end)
 
         if end:
-            infos["episode"] = {"r": self.accum_rewards}
+            infos["episode"] = {"r": self.accum_rewards, "l": self.n_steps}
 
         # if len(infos) != 0:
         #     reward += infos['height_sum'] / 50 / 1000

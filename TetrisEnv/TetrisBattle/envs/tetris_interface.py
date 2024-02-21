@@ -321,8 +321,8 @@ class TetrisSingleInterface(TetrisInterface):
             basic_reward = infos['scores']
             # additional_reward = 0.01 if infos['holes'] == 0 else 0
 
-            # additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
-            additional_reward = 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
+            additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
+            # additional_reward = 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = infos['cleared'] # + (0.2 if infos['holes'] == 0 else 0)
             # return basic_reward + 0.01 * additional_reward - infos['penalty']
             return basic_reward + 1 * additional_reward + infos['reward_notdie']
@@ -456,11 +456,23 @@ class TetrisSingleInterface(TetrisInterface):
             height_sum, diff_sum, max_height, holes = get_infos(tetris.get_board())
 
             # store the different of each information due to the move
+
+            # change in the sum of heights across all columns from the new placement. (minus another 4 apparently)
             infos['height_sum'] = height_sum - self.last_infos['height_sum'] - 4
+
+            # change in the sum of the difference of heights between adjacent columns from the new placement
             infos['diff_sum'] =  diff_sum - self.last_infos['diff_sum']
+
+            # change in the height of the max height column from the new placement
             infos['max_height'] =  max_height - self.last_infos['max_height']
+
+            # change in number of holes from the new placement ????
             infos['holes'] =  holes - self.last_infos['holes'] 
+
+            # change in how many blocks were used, from the new placement (always 1???)
             infos['n_used_block'] =  tetris.n_used_block - self.last_infos['n_used_block']
+
+            # bool for whether the 
             infos['is_fallen'] =  tetris.is_fallen 
             infos['scores'] =  scores 
             infos['cleared'] =  tetris.cleared

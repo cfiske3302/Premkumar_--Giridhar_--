@@ -329,7 +329,7 @@ class TetrisSingleInterface(TetrisInterface):
         self.reset()
 
     def reward_func(self, infos):
-
+        # a block is placed
         if infos["is_fallen"]:
             basic_reward = infos["scores"]
             # additional_reward = 0.01 if infos['holes'] == 0 else 0
@@ -340,12 +340,25 @@ class TetrisSingleInterface(TetrisInterface):
                 - 0.36 * infos["holes"]
                 - 0.18 * infos["diff_sum"]
             )
+            # additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = infos['cleared'] # + (0.2 if infos['holes'] == 0 else 0)
             # return basic_reward + 0.01 * additional_reward - infos['penalty']
-            return basic_reward + 1 * additional_reward + infos["reward_notdie"]
+            # return basic_reward + 1 * additional_reward + infos['reward_notdie']
+            # print(infos['max_height'])
 
-        return 0
+            # basic_reward = 4
+            # additional_reward = (
+            #     -0.5 * infos["max_height"]
+            #     + 10 * infos["cleared"]
+            #     - 2 * infos["holes"]
+            #     - 0.25 * infos["diff_sum"]
+            # )
+            return basic_reward + additional_reward + infos["penalty"]
+
+        # ie a block was not placed
+        else:
+            return 0
 
     def act(self, action):
         # Execute one time step within the environment
@@ -434,7 +447,8 @@ class TetrisSingleInterface(TetrisInterface):
                 pygame.display.flip()
 
                 # scores -= 5
-                penalty_die = self.total_reward * 0.8
+                # penalty_die = self.total_reward * 0.8
+                penalty_die = (self.time // 1000) - 130
 
                 end = 1
 
@@ -502,10 +516,16 @@ class TetrisSingleInterface(TetrisInterface):
                 tetris.n_used_block - self.last_infos["n_used_block"]
             )
 
-            # bool for whether the
+            # bool for whether the block has been placed
             infos["is_fallen"] = tetris.is_fallen
+
+            # the score the game awards for how you cleared the line (some style points and stuff)
             infos["scores"] = scores
+
+            # the amount of lines you cleared upon placing a block
             infos["cleared"] = tetris.cleared
+
+            # not super sure on these
             infos["penalty"] = penalty_die
             infos["reward_notdie"] = reward_notdie
 

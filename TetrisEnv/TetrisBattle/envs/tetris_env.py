@@ -109,30 +109,37 @@ class TetrisSingleEnv(TetrisEnv):
         super(TetrisSingleEnv, self).__init__(
             TetrisSingleInterface, gridchoice, obs_type, mode
         )
+        self.since_last_drop = 0
 
     def step(self, action):
         # Execute one time step within the environment
         reward = 0
+        self.n_steps += 1
+        infos = {}
+        self.since_last_drop += 1
         for i in range(10):
-            if i == 0:
-                action = action
-            else:
+            if i != 0:
                 action = 0
+            if self.since_last_drop >= 64:
+                action = 2
 
-            ob, step_reward, end, infos = self.game_interface.act(action)
+            ob, step_reward, end, new_info = self.game_interface.act(action)
             reward += step_reward
             # if 'height_sum' in infos:
             #     # print(infos)
             #     reward -= infos['height_sum'] * 0.2
 
             self.accum_rewards += step_reward
-            self.n_steps += 1
 
-            # justin was here
+            for key in new_info:
+                if key not in infos.keys():
+                    infos[key] = new_info[key]
+
             end = bool(end)
             if end:
                 infos["episode"] = {"r": self.accum_rewards, "l": self.n_steps}
                 break
+
 
             # if len(infos) != 0:
             #     reward += infos['height_sum'] / 50 / 1000
@@ -142,8 +149,41 @@ class TetrisSingleEnv(TetrisEnv):
             #     reward -= infos['max_height'] / 30 / 1000
 
             #     reward -= infos['holes'] / 20 / 1000
+        
+        if infos["is_fallen"] == 1:
+            self.since_last_drop = 0
+            return ob, reward, end, infos  # this may be sus?
 
         return ob, reward, end, infos
+
+    # def step(self, action):
+    #     # Execute one time step within the environment
+
+    #     ob, reward, end, infos = self.game_interface.act(action)
+
+    #     # if 'height_sum' in infos:
+    #     #     # print(infos)
+    #     #     reward -= infos['height_sum'] * 0.2
+
+    #     self.accum_rewards += reward
+    #     self.n_steps += 1
+
+    #     # justin was here
+    #     end = bool(end)
+
+    #     if end:
+    #         infos["episode"] = {"r": self.accum_rewards, "l": self.n_steps}
+
+    #     # if len(infos) != 0:
+    #     #     reward += infos['height_sum'] / 50 / 1000
+
+    #     #     reward -= infos['diff_sum'] / 40 / 1000
+
+    #     #     reward -= infos['max_height'] / 30 / 1000
+
+    #     #     reward -= infos['holes'] / 20 / 1000
+
+    #     return ob, reward, end, infos
 
 
 class TetrisDoubleEnv(TetrisEnv):

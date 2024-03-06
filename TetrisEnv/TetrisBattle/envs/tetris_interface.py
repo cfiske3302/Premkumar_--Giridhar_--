@@ -58,7 +58,7 @@ class ComEvent:
         # action: list of int
 
         self._now_evt_list = []
-
+        # print("evt: ", evt)
         for evt in self._pre_evt_list:
             if evt.type == pygame.KEYDOWN or evt.type == "HOLD":
                 if evt.key not in actions:
@@ -186,7 +186,7 @@ class TetrisInterface(abc.ABC):
     def get_seen_grid(self):
         grid_1 = self.tetris_list[self.now_player]["tetris"].get_grid()
         grid_1[-1][-1] = self.time / MAX_TIME
-        # print(grid_1)
+        # print(grid_1.shape)
         grid_2 = self.tetris_list[1 - self.now_player]["tetris"].get_grid()
         grid_2[-1][-1] = self.time / MAX_TIME
         grid_2.fill(0)  # since only one player
@@ -401,10 +401,10 @@ class TetrisSingleInterface(TetrisInterface):
         tetris.natural_down()
 
         com_event.set([action])
-        print(
-            "com_event.get()",
-            ([f"{evt._type}, {evt._key}\n" for evt in com_event.get()]),
-        )
+        # print(
+        #     "com_event.get()",
+        #     ([f"{evt._type}, {evt._key}\n" for evt in com_event.get()]),
+        # )
         for evt in com_event.get():
             tetris.trigger(evt)
 

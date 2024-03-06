@@ -621,26 +621,29 @@ class Tetris(object):
         return_grids = np.zeros(shape=(GRID_WIDTH, GRID_DEPTH), dtype=np.float32)
         
         block, px, py = self.block, self.px, self.py
-        excess = len(self.grid[0]) - GRID_DEPTH
+        # excess = len(self.grid[0]) - GRID_DEPTH
         b = block.now_block()
 
         for i in range(len(self.grid)):
             return_grids[i] = np.array(self.grid[i][excess:GRID_DEPTH], dtype=np.float32)
         return_grids[return_grids > 0] = 1
 
-        add_y = hardDrop(self.grid, self.block, self.px, self.py)
+        # add_y = hardDrop(self.grid, self.block, self.px, self.py)
 
         for x in range(BLOCK_WIDTH):
             for y in range(BLOCK_LENGTH):
                 if b[x][y] > 0:
                     # draw ghost grid
-                    if -1 < px + x < 10 and -1 < py + y + add_y - excess < 20:
-                        return_grids[px + x][py + y + add_y - excess] = 0.3
+                    #CAMCHANGE!
+                    # got rid of this. I don't think we need to give this to the AI (especially if we are changing the action space)
+                    # if -1 < px + x < 10 and -1 < py + y + add_y - excess < 20:
+                    #     return_grids[px + x][py + y + add_y - excess] = 0.3
                         
                     if -1 < px + x < 10 and -1 < py + y - excess < 20:
                         return_grids[px + x][py + y - excess] = 0.7
 
         informations = np.zeros(shape=(len(PIECE_NUM2TYPE) - 1, GRID_DEPTH), dtype=np.float32)
+        # print('information', informations.shape)
         if self.held != None:
             informations[PIECE_TYPE2NUM[self.held.block_type()] - 1][0] = 1
 

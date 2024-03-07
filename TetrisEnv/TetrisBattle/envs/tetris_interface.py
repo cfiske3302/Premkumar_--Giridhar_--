@@ -138,11 +138,14 @@ class TetrisInterface(abc.ABC):
             7: "down",
         }
 
-        self._n_actions = len(self._action_meaning)
+        # self._n_actions = len(self._action_meaning)
 
         # print(self.action_space.n)
 
-        self._action_set = list(range(self._n_actions))
+        # self._action_set = list(range(self._n_actions))
+        self.blockwise_action_meaning = self.get_valid_sequences()
+        self._action_set = range(len(self.blockwise_action_meaning))
+        self._n_actions = len(self._action_set)
 
         self.repeat = 1  # emulate the latency of human action
 
@@ -160,6 +163,28 @@ class TetrisInterface(abc.ABC):
         # fix the FPS to FPS (100)
         self._fix_speed_cross_device = True
         self._fix_fps = FPS
+
+    def get_valid_sequences(self, enable_hold=False):
+        # Reference https://github.com/brendanberg01/TetrisAI/blob/master/ai.py
+        possible_actions = []
+        for move in range(-4, 4):
+            for rotate in range(-2, 3):
+                actions = []
+                if rotate > 0:
+                    actions += [3 for _ in range(rotate)]
+                elif rotate < 0:
+                    actions += [4 for _ in range(-rotate)]
+
+                if move > 0:
+                    actions += [5 for _ in range(move)]  # right
+                elif move < 0:
+                    actions += [6 for _ in range(-move)]  # right
+
+                actions.append(2)  # hard_drop
+                if enable_hold:
+                    actions.append(1)
+                possible_actions.append(actions)
+        return possible_actions
 
     @property
     def action_meaning(self):
@@ -335,7 +360,7 @@ class TetrisSingleInterface(TetrisInterface):
 
             additional_reward = (
                 -0.51 * infos["height_sum"]
-                + 0.76 * infos["cleared"]
+                + 0.76 * infos["cleared"] ** 2
                 - 0.36 * infos["holes"]
                 - 0.18 * infos["diff_sum"]
             )

@@ -12,10 +12,10 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
         features_dim: int = 512,
         normalized_image: bool = False,
     ) -> None:
-        assert isinstance(observation_space, spaces.Box), (
-            "NatureCNN must be used with a gym.spaces.Box ",
-            f"observation space, not {observation_space}",
-        )
+        # assert isinstance(observation_space, spaces.Box), (
+        #     "NatureCNN must be used with a gym.spaces.Box ",
+        #     f"observation space, not {observation_space}",
+        # )
         super().__init__(observation_space, features_dim)
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 10, kernel_size=5, stride=1, padding=0),

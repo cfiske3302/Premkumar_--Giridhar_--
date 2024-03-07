@@ -58,7 +58,6 @@ class ComEvent:
         # action: list of int
 
         self._now_evt_list = []
-        # print("evt: ", evt)
         for evt in self._pre_evt_list:
             if evt.type == pygame.KEYDOWN or evt.type == "HOLD":
                 if evt.key not in actions:
@@ -396,6 +395,7 @@ class TetrisSingleInterface(TetrisInterface):
         #             print(action)
 
         action = self.get_true_action(player, action)
+        # print(player)
         # print("action", action)
 
         tetris.natural_down()

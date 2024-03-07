@@ -117,12 +117,11 @@ class TetrisSingleEnv(TetrisEnv):
         self.n_steps += 1
         infos = {}
         self.since_last_drop += 1
-        for i in range(50):
+        for i in range(20):
             if i != 0:
                 action = 0
-            if self.since_last_drop >= 64:
-                action = 2
-
+            # if self.since_last_drop >= 64:
+            #     action = 2
             ob, step_reward, end, new_info = self.game_interface.act(action)
             reward += step_reward
             # if 'height_sum' in infos:
@@ -149,9 +148,9 @@ class TetrisSingleEnv(TetrisEnv):
 
             #     reward -= infos['holes'] / 20 / 1000
 
-            if infos["is_fallen"] == 1:
-                self.since_last_drop = 0
-                return ob, reward, end, infos  # this may be sus?
+        if infos["is_fallen"] == 1:
+            self.since_last_drop = 0
+            return ob, reward, end, infos  # this may be sus?
 
         return ob, reward, end, infos
 

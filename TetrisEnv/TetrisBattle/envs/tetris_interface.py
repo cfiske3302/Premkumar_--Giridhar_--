@@ -318,19 +318,19 @@ class TetrisSingleInterface(TetrisInterface):
     def reward_func(self, infos):
         # a block is placed
         if infos['is_fallen']:
-            basic_reward = infos['scores']
+            # basic_reward = infos['scores']
             # additional_reward = 0.01 if infos['holes'] == 0 else 0
 
-            additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
+            # additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = infos['cleared'] # + (0.2 if infos['holes'] == 0 else 0)
             # return basic_reward + 0.01 * additional_reward - infos['penalty']
-            return basic_reward + 1 * additional_reward + infos['reward_notdie']
+            # return basic_reward + 1 * additional_reward + infos['reward_notdie']
             # print(infos['max_height'])
 
-            # basic_reward = 4
-            # additional_reward = -0.5 * infos['max_height'] + 10 * infos['cleared'] - 2 * infos['holes'] - 0.25 * infos['diff_sum']
-            # return basic_reward + additional_reward + infos['penalty']
+            basic_reward = 2
+            additional_reward = 10 * infos['cleared'] + -1 * infos['max_height'] + -1 * infos['holes']
+            return basic_reward + additional_reward + infos['penalty']
         
         # ie a block was not placed
         else:
@@ -414,7 +414,8 @@ class TetrisSingleInterface(TetrisInterface):
 
                 # scores -= 5
                 # penalty_die = self.total_reward * 0.8
-                penalty_die = (self.time // 1000) - 130
+                # MODIFIED
+                penalty_die = -100
 
                 end = 1
 

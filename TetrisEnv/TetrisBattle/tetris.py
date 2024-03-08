@@ -714,7 +714,9 @@ class Tetris(object):
 
     def trigger(self, evt):
         # if (hasattr(evt, "key")):
-        #     print(evt.key)
+        #     print("key " + str(evt.key))
+        #     print(str(self.LAST_MOVE_SHIFT_TIME))
+        #     print(str(self.LAST_ROTATE_TIME))
         if evt.type == pygame.KEYDOWN:
             if evt.key == self.player.rotate_right and self.LAST_ROTATE_TIME >= ROTATE_FREQ: # rotating
                 self.block, self.px, self.py, self.tspin = rotate(self.grid, self.block, self.px, self.py, _dir=1)

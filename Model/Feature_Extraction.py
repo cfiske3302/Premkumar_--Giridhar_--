@@ -12,13 +12,24 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
         features_dim: int = 512,
         normalized_image: bool = False,
     ) -> None:
+        # print(observation_space)
         # assert isinstance(observation_space, spaces.Box), (
         #     "NatureCNN must be used with a gym.spaces.Box ",
         #     f"observation space, not {observation_space}",
         # )
         super().__init__(observation_space, features_dim)
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 10, kernel_size=5, stride=1, padding=0),
+            nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=(1, 20), stride=1, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=(3, 1), stride=1, padding=(1, 0)),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.Flatten(),
         )
@@ -27,17 +38,12 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
         with th.no_grad():
             # print(th.as_tensor(observation_space.sample()[None]).float().shape)
             # print(type(th.as_tensor(observation_space.sample()[None]).float()))
-            # print(
-            #     th.as_tensor(observation_space.sample()[None])
-            #     .float()
-            #     .permute(3, 0, 1, 2)
-            #     .shape
-            # )
             observations = (
                 th.as_tensor(observation_space.sample()[None])
                 .float()
                 .permute(0, 3, 1, 2)
             )
+            print(th.as_tensor(observation_space.sample()[None, None]).float().shape)
             screens = th.cat(
                 (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
             )
@@ -46,6 +52,9 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
                     (observations[:, :, :, 10:17], observations[:, :, :, 27:]), axis=-1
                 )
             )
+            # print("screens", screens.shape)
+            # print("self.cnn(screens)", self.cnn(screens).shape)
+            # print("infos", infos.shape)
             features = th.cat((self.cnn(screens), infos), axis=-1)
             n_flatten = features.shape[1]
 
@@ -53,6 +62,7 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         observations = observations.permute(0, 3, 1, 2)
+        # observations = observations[:, None]
         screens = th.cat(
             (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
         )

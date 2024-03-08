@@ -181,6 +181,7 @@ class TetrisInterface(abc.ABC):
                     actions += [6 for _ in range(-move)]  # right
 
                 actions.append(2)  # hard_drop
+                actions.append(7) # move the next block down so we can read it
                 if enable_hold:
                     actions.append(1)
                 possible_actions.append(actions)

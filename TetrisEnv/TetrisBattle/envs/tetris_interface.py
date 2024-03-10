@@ -278,6 +278,10 @@ class TetrisInterface(abc.ABC):
 
         ob = self.get_obs()
 
+        if self._obs_type == "grid":
+            current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
+            ob[GRID_WIDTH + current_block_id - 1][7] = 1
+
         return ob
 
 
@@ -459,7 +463,7 @@ class TetrisSingleInterface(TetrisInterface):
         
         self.myClock.tick(FPS)  
         pygame.display.flip()
-
+        
         ob = self.get_obs()
 
         infos = {'is_fallen': tetris.is_fallen}
@@ -514,6 +518,10 @@ class TetrisSingleInterface(TetrisInterface):
             # freeze(0.5)
             infos['sent'] = tetris.sent
             # self.reset()
+
+        if self._obs_type == "grid":
+            current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
+            ob[GRID_WIDTH + current_block_id - 1][7] = 1
 
         return ob, reward, end, infos
 

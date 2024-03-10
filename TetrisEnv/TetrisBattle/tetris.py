@@ -634,8 +634,8 @@ class Tetris(object):
             for y in range(BLOCK_LENGTH):
                 if b[x][y] > 0:
                     # draw ghost grid
-                    if -1 < px + x < 10 and -1 < py + y + add_y - excess < 20:
-                        return_grids[px + x][py + y + add_y - excess] = 0.3
+                    # if -1 < px + x < 10 and -1 < py + y + add_y - excess < 20:
+                    #     return_grids[px + x][py + y + add_y - excess] = 0.3
                         
                     if -1 < px + x < 10 and -1 < py + y - excess < 20:
                         return_grids[px + x][py + y - excess] = 0.7
@@ -649,11 +649,11 @@ class Tetris(object):
             _type = nextpieces[i].block_type()
             informations[PIECE_TYPE2NUM[_type] - 1][i + 1] = 1
         # index start from 6
-
-        informations[0][6] = self.sent / 100
-        informations[1][6] = self.combo / 10
-        informations[2][6] = self.pre_back2back
-        informations[3][6] = self._attacked / GRID_DEPTH
+        
+        # informations[0][6] = self.sent / 100
+        # informations[1][6] = self.combo / 10
+        # informations[2][6] = self.pre_back2back
+        # informations[3][6] = self._attacked / GRID_DEPTH
         # informations[3][7] = self.time / MAX_TIME
 
         return_grids = np.concatenate((return_grids, informations), axis=0)

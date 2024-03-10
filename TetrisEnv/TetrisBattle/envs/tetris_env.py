@@ -125,7 +125,6 @@ class TetrisSingleEnv(TetrisEnv):
                 # if self.since_last_drop >= 64:
                 #     ac = 2
                 ob, step_reward, end, new_info = self.game_interface.act(ac)
-                # print('step_reward', step_reward)
                 reward += step_reward
                 # if 'height_sum' in infos:
                 #     # print(infos)

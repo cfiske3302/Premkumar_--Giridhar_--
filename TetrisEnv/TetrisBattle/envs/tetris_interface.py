@@ -328,9 +328,12 @@ class TetrisSingleInterface(TetrisInterface):
             # return basic_reward + 1 * additional_reward + infos['reward_notdie']
             # print(infos['max_height'])
 
-            basic_reward = 2
-            additional_reward = 10 * infos['cleared'] + -1 * infos['max_height'] + -1 * infos['holes']
-            return basic_reward + additional_reward + infos['penalty']
+            # basic_reward = 2
+            # additional_reward = 10 * infos['cleared'] + -1 * infos['max_height'] + -1 * infos['holes']
+            # return basic_reward + additional_reward + infos['penalty']
+
+            # Taiwan Paper Reward Function #
+            return 7 + 10* infos['cleared'] + infos['penalty'] - infos['holes']
         
         # ie a block was not placed
         else:

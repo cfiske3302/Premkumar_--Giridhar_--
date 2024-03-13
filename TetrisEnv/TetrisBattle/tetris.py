@@ -655,6 +655,42 @@ class Tetris(object):
     def attacked(self):
         return self._attacked
 
+    def get_lookahead_grid(self, action_seq):
+        excess = len(self.grid[0]) - GRID_DEPTH
+        return_grids = np.zeros(shape=(GRID_WIDTH, GRID_DEPTH), dtype=np.float32)
+
+        block, px, py = self.block, self.px, self.py
+        # excess = len(self.grid[0]) - GRID_DEPTH
+
+        # get current states to modify without changing attributes
+        px = self.px
+        grid = self.grid
+        py = self.py
+
+        # perform actions
+        for action in action_seq:
+            if action == 3 or action == 4:  # roataion
+                block, px, py, _ = rotate(grid, block, px, py, _dir=7 - action * 2)
+            elif action == 5 or action == 6:  # shift
+                px += 11 - action * 2
+
+        # add the preexisting blocks to the board (idk why they do it like this, I just left it alone)
+        for i in range(len(self.grid)):
+            return_grids[i] = np.array(
+                self.grid[i][excess:GRID_DEPTH], dtype=np.float32
+            )
+        return_grids[return_grids > 0] = 1
+
+        # place the new block on the board
+        b = block.now_block()
+        add_y = hardDrop(grid, block, px, py)
+        for x in range(BLOCK_WIDTH):
+            for y in range(BLOCK_LENGTH):
+                if b[x][y] > 0:
+                    if -1 < px + x < 10 and -1 < py + y + add_y - excess < 20:
+                        return_grids[px + x][py + y + add_y - excess] = 1
+        return return_grids
+
     def get_grid(self):
         excess = len(self.grid[0]) - GRID_DEPTH
         return_grids = np.zeros(shape=(GRID_WIDTH, GRID_DEPTH), dtype=np.float32)

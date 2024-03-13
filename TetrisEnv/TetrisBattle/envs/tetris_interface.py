@@ -220,11 +220,23 @@ class TetrisInterface(abc.ABC):
         return grid.reshape(grid.shape[0], grid.shape[1], 1)
         # return self.tetris_list[self.now_player]["tetris"].get_grid().reshape(GRID_DEPTH, GRID_WIDTH, 1)
 
+    def get_lookahead_grids(self, action_seqs):
+        grids = []
+        for seq in action_seqs:
+            grids.append(
+                self.tetris_list[self.now_player]["tetris"].get_lookahead_grid(seq)
+            )
+        return np.array(grids, dtype=np.float32)
+
     def get_obs(self):
         if self._obs_type == "grid":
             return self.get_seen_grid()
+
         elif self._obs_type == "image":
             img = self.get_screen_shot()
+
+        elif self._obs_type == "lookahead":
+            return self.get_lookahead_grids(self.get_valid_sequences())
         return img
 
     def random_action(self):
@@ -580,6 +592,7 @@ class TetrisSingleInterface(TetrisInterface):
         if self._obs_type == "grid":
             current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
             ob[GRID_WIDTH + current_block_id - 1][7] = 1
+
         return ob, reward, end, infos
 
 

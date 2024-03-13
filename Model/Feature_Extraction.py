@@ -43,7 +43,7 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
                 .float()
                 .permute(0, 3, 1, 2)
             )
-            print(th.as_tensor(observation_space.sample()[None, None]).float().shape)
+            # print(th.as_tensor(observation_space.sample()[None, None]).float().shape)
             screens = th.cat(
                 (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
             )

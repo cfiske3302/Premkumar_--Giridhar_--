@@ -119,7 +119,7 @@ class TetrisSingleEnv(TetrisEnv):
         self.since_last_drop += 1
         action = self.game_interface.blockwise_action_meaning[action]
         for ac in action:
-            for i in range(1):
+            for i in range(2):
                 if i != 0:
                     ac = 0
                 # if self.since_last_drop >= 64:
@@ -162,7 +162,7 @@ class TetrisSingleEnv(TetrisEnv):
         self.n_steps += 1
         infos = {}
         self.since_last_drop += 1
-        for i in range(20):
+        for i in range(2):
             if i != 0:
                 action = 0
             # if self.since_last_drop >= 64:

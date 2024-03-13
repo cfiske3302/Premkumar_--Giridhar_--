@@ -167,7 +167,7 @@ class TetrisInterface(abc.ABC):
     def get_valid_sequences(self, enable_hold=False):
         # Reference https://github.com/brendanberg01/TetrisAI/blob/master/ai.py
         possible_actions = []
-        for move in range(-4, 4):
+        for move in range(-6, 6):
             for rotate in range(-2, 3):
                 actions = []
                 if rotate > 0:
@@ -181,7 +181,7 @@ class TetrisInterface(abc.ABC):
                     actions += [6 for _ in range(-move)]  # right
 
                 actions.append(2)  # hard_drop
-                actions.append(7) # move the next block down so we can read it
+                actions.append(7)  # move the next block down so we can read it
                 if enable_hold:
                     actions.append(1)
                 possible_actions.append(actions)
@@ -314,6 +314,10 @@ class TetrisInterface(abc.ABC):
         self.myClock.tick(FPS)
 
         ob = self.get_obs()
+
+        if self._obs_type == "grid":
+            current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
+            ob[GRID_WIDTH + current_block_id - 1][7] = 1
 
         return ob
 
@@ -573,7 +577,9 @@ class TetrisSingleInterface(TetrisInterface):
             # freeze(0.5)
             infos["sent"] = tetris.sent
             # self.reset()
-
+        if self._obs_type == "grid":
+            current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
+            ob[GRID_WIDTH + current_block_id - 1][7] = 1
         return ob, reward, end, infos
 
 

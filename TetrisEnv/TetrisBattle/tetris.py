@@ -1,4 +1,4 @@
-'''
+"""
 Tetris Battle
 
 originally Ccreated by Yuwei Xu, Eman Igbokwe
@@ -7,13 +7,13 @@ modified by Yi-Lin Sung
 
 this is a similar version to the ever popular tetris battle
 game with not many changes"
-'''
+"""
 
-#basic modules needed for game to run
+# basic modules needed for game to run
 import os
 import pygame
 import random
-
+import inspect
 import numpy as np
 
 from .settings import *
@@ -23,15 +23,17 @@ from copy import deepcopy
 import time as t
 from collections import Counter
 
+
 def put_block_in_grid(grid, block, px, py):
     feasibles = block.return_pos_color(px, py)
 
     for x, y, c in feasibles:
-        '''
+        """
         TODO: y boundary
-        '''
+        """
         if -1 < x < GRID_WIDTH and -1 < y < len(grid[0]):
             grid[x][y] = c
+
 
 def collide(grid, block, px, py):
     feasibles = block.get_feasible()
@@ -41,18 +43,18 @@ def collide(grid, block, px, py):
     # excess = len(grid[0]) - GRID_DEPTH
     for pos in feasibles:
         # print(px + pos[0], py + pos[1])
-        if px + pos[0] > GRID_WIDTH - 1:   # right
+        if px + pos[0] > GRID_WIDTH - 1:  # right
             return True
 
-        if px + pos[0] < 0:   # left
+        if px + pos[0] < 0:  # left
             return True
 
         if py + pos[1] > len(grid[0]) - 1:  # down
             return True
 
-        if py + pos[1] < 0:   # up
+        if py + pos[1] < 0:  # up
             continue
-        
+
         if grid[px + pos[0]][py + pos[1]] > 0:
             # print(px, py)
             # print(px + pos[0], py + pos[1])
@@ -61,12 +63,14 @@ def collide(grid, block, px, py):
 
     return False
 
+
 # collidedown function
 # for i in range 4(y position)
 # if px+y=20 then collidedown =true
 # used for move down and rotation collisions
 def collideDown(grid, block, px, py):
     return collide(grid, block, px, py + 1)
+
 
 # collideleft function
 # for i in range 4(x positions)
@@ -75,6 +79,7 @@ def collideDown(grid, block, px, py):
 def collideLeft(grid, block, px, py):
     return collide(grid, block, px - 1, py)
 
+
 # collideright function
 # for i in range 4(x positions)
 # if blockx +x +1>9 then collide left = True
@@ -82,6 +87,7 @@ def collideLeft(grid, block, px, py):
 # used for moving block and rotation collision
 def collideRight(grid, block, px, py):
     return collide(grid, block, px + 1, py)
+
 
 # rotatecollision function
 # when respective rotate buttons are pressed
@@ -108,10 +114,10 @@ def rotateCollide(grid, block, px, py):
     excess = len(grid[0]) - GRID_DEPTH
     for pos in feasibles:
         # print(px + pos[0], py + pos[1])
-        if px + pos[0] > 9:   # right
+        if px + pos[0] > 9:  # right
             c.update({"right": 1})
 
-        if px + pos[0] < 0:   # left
+        if px + pos[0] < 0:  # left
             c.update({"left": 1})
 
         if py + pos[1] > len(grid[0]) - 1:  # down
@@ -121,7 +127,7 @@ def rotateCollide(grid, block, px, py):
         #     c.update({"up": 1})
 
         if 0 <= px + pos[0] <= 9 and excess <= py + pos[1] <= len(grid[0]) - 1:
-        
+
             if grid[px + pos[0]][py + pos[1]] > 0:
                 if pos[0] == left_most:
                     c.update({"left": 1})
@@ -139,21 +145,30 @@ def rotateCollide(grid, block, px, py):
         return c.most_common()[0][0]
 
 
-#this function checks if a tspin has occured
-#checks all possible tspin positions
-#then spins the t piece into the spot
+# this function checks if a tspin has occured
+# checks all possible tspin positions
+# then spins the t piece into the spot
 def tspinCheck(grid, block, px, py):
 
     if collideDown(grid, block, px, py) == True:
-        if block.block_type() == 'T':
+        if block.block_type() == "T":
             if px + 2 < GRID_WIDTH and py + 3 < len(grid[0]):
-                if grid[px][py + 1] > 0 and grid[px][py + 3] > 0 and grid[px + 2][py + 3] > 0:
+                if (
+                    grid[px][py + 1] > 0
+                    and grid[px][py + 3] > 0
+                    and grid[px + 2][py + 3] > 0
+                ):
 
                     return True
-                elif grid[px][py + 3] > 0 and grid[px + 2][py + 3] > 0 and grid[px + 2][py + 1] > 0:
+                elif (
+                    grid[px][py + 3] > 0
+                    and grid[px + 2][py + 3] > 0
+                    and grid[px + 2][py + 1] > 0
+                ):
 
                     return True
     return False
+
 
 # this function rotates the piece
 # when rotation button is hit the next grid in the piece list becomes the piece
@@ -164,7 +179,7 @@ def rotate(grid, block, px, py, _dir=1):
 
     # b = block.now_block()
 
-    collision = rotateCollide(grid, block, px, py) # checks for collisions
+    collision = rotateCollide(grid, block, px, py)  # checks for collisions
     # print(collision)
     find = 0
 
@@ -204,7 +219,7 @@ def rotate(grid, block, px, py, _dir=1):
                     find = 1
 
     if collision != False and not find:
-        block.rotate(- _dir) 
+        block.rotate(-_dir)
 
     # print(collision)
 
@@ -231,8 +246,9 @@ def hardDrop(grid, block, px, py):
             y += 1
             if collideDown(grid, block, px, py) == True:
                 break
-        
+
     return y
+
 
 # this function enables you to hold a piece
 def hold(block, held, _buffer):
@@ -242,16 +258,18 @@ def hold(block, held, _buffer):
         held = block
         block = _buffer.new_block()
 
-    # the piece switches with the held piece     
+    # the piece switches with the held piece
     else:
         block, held = held, block
-        
+
     return [block, held]
+
 
 def freeze(last_time):
     start = t.time()
     while t.time() - start < last_time:
         pass
+
 
 def get_infos(board):
     # board is equal to grid
@@ -267,7 +285,9 @@ def get_infos(board):
 
     # Calculate the maximum height of each column
     for i in range(0, len(board)):  # Select a column
-        for j in range(0, len(board[0])):  # Search down starting from the top of the board
+        for j in range(
+            0, len(board[0])
+        ):  # Search down starting from the top of the board
             if int(board[i][j]) > 0:  # Is the cell occupied?
                 heights[i] = len(board[0]) - j  # Store the height value
                 break
@@ -295,13 +315,14 @@ def get_infos(board):
 
     return height_sum, diff_sum, max_height, holes
 
+
 class Piece(object):
     def __init__(self, _type, possible_shapes):
 
         self._type = _type
         self.possible_shapes = possible_shapes
 
-        self.current_shape_id = 0 
+        self.current_shape_id = 0
 
     def block_type(self):
         return self._type
@@ -362,10 +383,12 @@ class Piece(object):
         self.current_shape_id += _dir
         self.current_shape_id %= len(self.possible_shapes)
 
+
 class Buffer(object):
-    '''
+    """
     Stores the coming pieces, every 7 pieces in a group.
-    '''
+    """
+
     def __init__(self):
         self.now_list = []
         self.next_list = []
@@ -373,13 +396,14 @@ class Buffer(object):
         self.fill(self.now_list)
         self.fill(self.next_list)
 
-    '''
+    """
     make sure "now list" are filled
 
                      now list           next list
     next piece <- [           ]   <-  [            ]
  
-    '''
+    """
+
     def new_block(self):
         out = self.now_list.pop(0)
         self.now_list.append(self.next_list.pop(0))
@@ -397,11 +421,12 @@ class Buffer(object):
             _list.append(Piece(key, PIECES_DICT[key]))
 
 
-'''
+"""
 
 class for player
 
-'''
+"""
+
 
 class Player(object):
     def __init__(self, info_dict):
@@ -448,11 +473,13 @@ class Player(object):
     def right(self):
         return self._right
 
-'''
+
+"""
 
 class Judge
 
-'''
+"""
+
 
 class Judge(object):
 
@@ -465,21 +492,30 @@ class Judge(object):
 
     @staticmethod
     def who_win(tetris_1, tetris_2):
-        if tetris_2.KO > tetris_1.KO: # Checks who is the winner of the game
-            return tetris_2.get_id() # a is screebn.copy,endgame ends the game,2 is player 2 wins
+        if tetris_2.KO > tetris_1.KO:  # Checks who is the winner of the game
+            return (
+                tetris_2.get_id()
+            )  # a is screebn.copy,endgame ends the game,2 is player 2 wins
         if tetris_1.KO > tetris_2.KO:
-            return tetris_1.get_id() # a is screebn.copy,endgame ends the game,1 is player 1 wins
+            return (
+                tetris_1.get_id()
+            )  # a is screebn.copy,endgame ends the game,1 is player 1 wins
         if tetris_1.KO == tetris_2.KO:
             if tetris_2.sent > tetris_1.sent:
-                return tetris_2.get_id() # a is screebn.copy,endgame ends the game,2 is player 2 wins
+                return (
+                    tetris_2.get_id()
+                )  # a is screebn.copy,endgame ends the game,2 is player 2 wins
             elif tetris_1.sent > tetris_2.sent:
-                return tetris_1.get_id() # a is screebn.copy,endgame ends the game,1 is player 1 wins
+                return (
+                    tetris_1.get_id()
+                )  # a is screebn.copy,endgame ends the game,1 is player 1 wins
             elif tetris_1.get_maximum_height() > tetris_2.get_maximum_height():
                 return tetris_2.get_id()
             elif tetris_2.get_maximum_height() > tetris_1.get_maximum_height():
                 return tetris_1.get_id()
             else:
-                return tetris_1.get_id() # no UI of draw
+                return tetris_1.get_id()  # no UI of draw
+
 
 class Tetris(object):
     def __init__(self, player, gridchoice):
@@ -488,41 +524,46 @@ class Tetris(object):
             self.o_grid = [[0] * GRID_DEPTH for i in range(GRID_WIDTH)]
 
         if gridchoice == "classic":
-            self.o_grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+            self.o_grid = [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ]
 
         if gridchoice == "comboking":
-            self.o_grid = [[0, 0, 0, 0, 0, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], 
-                          [0, 0, 0, 0, 0, 6, 6, 6, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4, 5], 
-                          [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], 
-                          [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5], 
-                          [0, 0, 0, 0, 0, 6, 6, 6, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4, 5], 
-                          [0, 0, 0, 0, 0, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]]
+            self.o_grid = [
+                [0, 0, 0, 0, 0, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+                [0, 0, 0, 0, 0, 6, 6, 6, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4, 5],
+                [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+                [0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
+                [0, 0, 0, 0, 0, 6, 6, 6, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4, 5],
+                [0, 0, 0, 0, 0, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ]
 
         if gridchoice == "lunchbox":
-            self.o_grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 2, 2, 2, 2, 2, 2, 5, 1], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 2, 4, 4, 4, 4, 2, 5, 1], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 2, 4, 4, 4, 4, 2, 5, 6], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 2, 2, 2, 2, 2, 2, 5, 6], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6], 
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]]
-
+            self.o_grid = [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 5, 5, 5, 5, 5, 5, 5, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 2, 2, 2, 2, 2, 2, 5, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 2, 4, 4, 4, 4, 2, 5, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 2, 4, 4, 4, 4, 2, 5, 6],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 2, 2, 2, 2, 2, 2, 5, 6],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 5, 5, 5, 5, 5, 5, 5, 5, 6],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+            ]
 
         self.player = player
 
@@ -531,7 +572,7 @@ class Tetris(object):
     def reset(self):
         self.grid = deepcopy(self.o_grid)
 
-        self.oldko = 0 # these two used to keep track of ko's
+        self.oldko = 0  # these two used to keep track of ko's
 
         self._n_used_block = 1
 
@@ -542,15 +583,15 @@ class Tetris(object):
 
         # amount of lines sent for p1 and p2
         self.sent = 0
-        self.tempsend = 0 # tempsending for p1 and p2
-        self.oldcombo = self.combo = -1 # used for checking comboas
-        self.tspin = 0 # for t spin
+        self.tempsend = 0  # tempsending for p1 and p2
+        self.oldcombo = self.combo = -1  # used for checking comboas
+        self.tspin = 0  # for t spin
         self.now_back2back = 0
         self.pre_back2back = 0
         self.tetris = 0
 
-        #for "KO"
-        self._KO = 0 
+        # for "KO"
+        self._KO = 0
 
         self._attacked = 0
         self._is_fallen = 0
@@ -569,7 +610,6 @@ class Tetris(object):
         self.pressedLeft = False
         self.pressedDown = False
 
-
         self.LAST_ROTATE_TIME = 0
         self.LAST_MOVE_SHIFT_TIME = 0
         self.LAST_MOVE_DOWN_TIME = 0
@@ -579,7 +619,6 @@ class Tetris(object):
         self.LAST_BACK2BACK_DRAW_TIME = 0
         self.LAST_NATRUAL_FALL_TIME = 0
         self.LAST_FALL_DOWN_TIME = 0
-
 
         self.tetris_drawing = 0
         self.tspin_drawing = 0
@@ -615,17 +654,18 @@ class Tetris(object):
     @property
     def attacked(self):
         return self._attacked
-    
+
     def get_grid(self):
         excess = len(self.grid[0]) - GRID_DEPTH
         return_grids = np.zeros(shape=(GRID_WIDTH, GRID_DEPTH), dtype=np.float32)
-        
+
         block, px, py = self.block, self.px, self.py
         # excess = len(self.grid[0]) - GRID_DEPTH
         b = block.now_block()
-
         for i in range(len(self.grid)):
-            return_grids[i] = np.array(self.grid[i][excess:GRID_DEPTH], dtype=np.float32)
+            return_grids[i] = np.array(
+                self.grid[i][excess:GRID_DEPTH], dtype=np.float32
+            )
         return_grids[return_grids > 0] = 1
 
         # add_y = hardDrop(self.grid, self.block, self.px, self.py)
@@ -634,30 +674,36 @@ class Tetris(object):
             for y in range(BLOCK_LENGTH):
                 if b[x][y] > 0:
                     # draw ghost grid
-                    #CAMCHANGE!
+                    # CAMCHANGE!
                     # got rid of this. I don't think we need to give this to the AI (especially if we are changing the action space)
                     # if -1 < px + x < 10 and -1 < py + y + add_y - excess < 20:
                     #     return_grids[px + x][py + y + add_y - excess] = 0.3
-                        
+
                     if -1 < px + x < 10 and -1 < py + y - excess < 20:
                         return_grids[px + x][py + y - excess] = 0.7
 
-        informations = np.zeros(shape=(len(PIECE_NUM2TYPE) - 1, GRID_DEPTH), dtype=np.float32)
+        informations = np.zeros(
+            shape=(len(PIECE_NUM2TYPE) - 1, GRID_DEPTH), dtype=np.float32
+        )
         # print('information', informations.shape)
         if self.held != None:
             informations[PIECE_TYPE2NUM[self.held.block_type()] - 1][0] = 1
 
         nextpieces = self.buffer.now_list
-        for i in range(5): # 5 different pieces 
+        for i in range(5):  # 5 different pieces
             _type = nextpieces[i].block_type()
             informations[PIECE_TYPE2NUM[_type] - 1][i + 1] = 1
+            # print(i, _type)
         # index start from 6
+        # curr_type = block.block_type()
 
-        informations[0][6] = self.sent / 100
-        informations[1][6] = self.combo / 10
-        informations[2][6] = self.pre_back2back
-        informations[3][6] = self._attacked / GRID_DEPTH
-        # informations[3][7] = self.time / MAX_TIME
+        # print("buffer: ", inspect.getmembers(self.buffer))
+
+        # informations[0][6] = self.sent / 100
+        # informations[1][6] = self.combo / 10
+        # informations[2][6] = self.pre_back2back
+        # informations[3][6] = self._attacked / GRID_DEPTH
+        ## informations[3][7] = self.time / MAX_TIME
 
         return_grids = np.concatenate((return_grids, informations), axis=0)
 
@@ -666,13 +712,15 @@ class Tetris(object):
     def get_board(self):
         excess = len(self.grid[0]) - GRID_DEPTH
         return_grids = np.zeros(shape=(GRID_WIDTH, GRID_DEPTH), dtype=np.float32)
-        
+
         block, px, py = self.block, self.px, self.py
         excess = len(self.grid[0]) - GRID_DEPTH
         # b = block.now_block()
 
         for i in range(len(self.grid)):
-            return_grids[i] = np.array(self.grid[i][excess:GRID_DEPTH], dtype=np.float32)
+            return_grids[i] = np.array(
+                self.grid[i][excess:GRID_DEPTH], dtype=np.float32
+            )
         return_grids[return_grids > 0] = 1
         # for x in range(BLOCK_WIDTH):
         #     for y in range(BLOCK_LENGTH):
@@ -680,15 +728,16 @@ class Tetris(object):
         #             if -1 < px + x < 10 and -1 < py + y - excess < 20:
         #                 return_grids[px + x][py + y - excess] = 0.5
 
-
         return return_grids
 
     def get_maximum_height(self):
         max_height = 0
         for i in range(0, len(self.grid)):  # Select a column
-            for j in range(0, len(self.grid[0])):  # Search down starting from the top of the board
+            for j in range(
+                0, len(self.grid[0])
+            ):  # Search down starting from the top of the board
                 if int(self.grid[i][j]) > 0:  # Is the cell occupied?
-                    max_height = max(max_height, len(self.grid[0]) - j) 
+                    max_height = max(max_height, len(self.grid[0]) - j)
                     break
         return max_height
 
@@ -719,27 +768,39 @@ class Tetris(object):
         # if (hasattr(evt, "key")):
         #     print(evt.key)
         if evt.type == pygame.KEYDOWN:
-            if evt.key == self.player.rotate_right and self.LAST_ROTATE_TIME >= ROTATE_FREQ: # rotating
-                self.block, self.px, self.py, self.tspin = rotate(self.grid, self.block, self.px, self.py, _dir=1)
+            if (
+                evt.key == self.player.rotate_right
+                and self.LAST_ROTATE_TIME >= ROTATE_FREQ
+            ):  # rotating
+                self.block, self.px, self.py, self.tspin = rotate(
+                    self.grid, self.block, self.px, self.py, _dir=1
+                )
                 self.LAST_ROTATE_TIME = 0
 
-            if evt.key == self.player.rotate_left and self.LAST_ROTATE_TIME >= ROTATE_FREQ: # rotating
-                self.block, self.px, self.py, self.tspin = rotate(self.grid, self.block, self.px, self.py, _dir=-1)
+            if (
+                evt.key == self.player.rotate_left
+                and self.LAST_ROTATE_TIME >= ROTATE_FREQ
+            ):  # rotating
+                self.block, self.px, self.py, self.tspin = rotate(
+                    self.grid, self.block, self.px, self.py, _dir=-1
+                )
                 self.LAST_ROTATE_TIME = 0
 
-            if evt.key == self.player.drop: # harddrop
-                y = hardDrop(self.grid, self.block, self.px, self.py) # parameters
+            if evt.key == self.player.drop:  # harddrop
+                y = hardDrop(self.grid, self.block, self.px, self.py)  # parameters
                 # self.block.move_down(y)
                 self.py += y
                 # self.stopcounter = COLLIDE_DOWN_COUNT
                 # self.LAST_FALL_DOWN_TIME = -FALL_DOWN_FREQ
                 self.LAST_FALL_DOWN_TIME = FALL_DOWN_FREQ
 
-            if evt.key == self.player.hold: #holding 
+            if evt.key == self.player.hold:  # holding
 
                 if not self.isholded:
 
-                    self.block, self.held = hold(self.block, self.held, self.buffer) # parameters
+                    self.block, self.held = hold(
+                        self.block, self.held, self.buffer
+                    )  # parameters
                     self.held.reset()
                     self.reset_pos()
                     self.isholded = 1
@@ -769,7 +830,7 @@ class Tetris(object):
     def move(self):
         # if keys[self.right]:
         if self.pressedRight and self.LAST_MOVE_SHIFT_TIME > MOVE_SHIFT_FREQ:
-            if collideRight(self.grid, self.block, self.px, self.py) == False:    
+            if collideRight(self.grid, self.block, self.px, self.py) == False:
                 self.LAST_MOVE_SHIFT_TIME = 0
 
                 # self.block.move_right()
@@ -807,7 +868,7 @@ class Tetris(object):
 
         return False
 
-        # if self.stopcounter >= COLLIDE_DOWN_COUNT: # adds adequate delay  
+        # if self.stopcounter >= COLLIDE_DOWN_COUNT: # adds adequate delay
         #     if block_in_grid(self.grid, self.block):
         #         self.is_fallen = 1
         #         return True
@@ -828,13 +889,14 @@ class Tetris(object):
             if combo > 0:
                 if combo <= 8:
                     combo_scores = int((combo + 1) / 2)
-                else: combo_scores = 4
+                else:
+                    combo_scores = 4
             else:
                 combo_scores = 0
 
             scores += combo_scores
 
-            # 2 line tspin 
+            # 2 line tspin
             if tspin and cleared == 2:
                 scores += 3
 
@@ -854,7 +916,7 @@ class Tetris(object):
 
         for y in reversed(range(GRID_DEPTH)):
             y = -(y + 1)
-            row = 0 # starts checking from row zero
+            row = 0  # starts checking from row zero
             for x in range(GRID_WIDTH):
                 if self.grid[x][y] > 0 and self.grid[x][y] < 8:
                     row += 1
@@ -862,23 +924,25 @@ class Tetris(object):
             if row == GRID_WIDTH:
                 cleared += 1
                 for i in range(GRID_WIDTH):
-                    del self.grid[i][y] # deletes cleared lines
-                    self.grid[i] = [0] + self.grid[i] # adds a row of zeros to the grid
-                        
-        if cleared >= 1: # for sending lines
+                    del self.grid[i][y]  # deletes cleared lines
+                    self.grid[i] = [0] + self.grid[i]  # adds a row of zeros to the grid
+
+        if cleared >= 1:  # for sending lines
             self.combo += 1
-            if cleared == 4: # a tetris
+            if cleared == 4:  # a tetris
                 self.tetris = 1
             else:
                 self.tetris = 0
 
-            self.pre_back2back = self.now_back2back   
+            self.pre_back2back = self.now_back2back
         else:
             self.combo = -1
             self.tetris = 0
 
         # compute scores
-        scores = self.compute_scores(cleared, self.combo, self.tspin, self.tetris, self.pre_back2back)
+        scores = self.compute_scores(
+            cleared, self.combo, self.tspin, self.tetris, self.pre_back2back
+        )
 
         if cleared >= 1:
             if self.tspin or self.tetris:
@@ -897,14 +961,14 @@ class Tetris(object):
         self.build_garbage(self.grid, real_attacked)
 
         self._attacked = 0
-        
+
         return scores
 
         # return scores
 
     def check_KO(self):
         is_ko = False
-        #if your grid hits the top ko = true
+        # if your grid hits the top ko = true
         excess = len(self.grid[0]) - GRID_DEPTH
 
         for i in range(GRID_WIDTH):
@@ -913,7 +977,7 @@ class Tetris(object):
                 break
 
         return is_ko
-        
+
     def clear_garbage(self):
         garbage = 0
         # excess = len(grid[0]) - GRID_DEPTH
@@ -926,10 +990,10 @@ class Tetris(object):
 
     def build_garbage(self, grid, attacked):
         garbage_size = min(attacked, GRID_DEPTH)
-        for y in range(0, garbage_size):    
+        for y in range(0, garbage_size):
             for i in range(GRID_WIDTH):
                 # del player.grid[i][y] # deletes top of grid
-                grid[i] = grid[i] + [8] # adds garbage lines at the bottom
+                grid[i] = grid[i] + [8]  # adds garbage lines at the bottom
 
         # return grid
 

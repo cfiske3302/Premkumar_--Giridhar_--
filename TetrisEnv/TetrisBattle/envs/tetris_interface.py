@@ -6,7 +6,7 @@ import random
 from TetrisBattle.settings import *
 
 from TetrisBattle.tetris import Tetris, Player, Judge, get_infos, freeze
-
+from gym import spaces
 from TetrisBattle.renderer import Renderer
 
 
@@ -167,7 +167,7 @@ class TetrisInterface(abc.ABC):
     def get_valid_sequences(self, enable_hold=False):
         # Reference https://github.com/brendanberg01/TetrisAI/blob/master/ai.py
         possible_actions = []
-        for move in range(-6, 6):
+        for move in range(-6, 5):
             for rotate in range(-2, 3):
                 actions = []
                 if rotate > 0:
@@ -220,13 +220,18 @@ class TetrisInterface(abc.ABC):
         return grid.reshape(grid.shape[0], grid.shape[1], 1)
         # return self.tetris_list[self.now_player]["tetris"].get_grid().reshape(GRID_DEPTH, GRID_WIDTH, 1)
 
-    def get_lookahead_grids(self, action_seqs):
+    def get_lookahead_grids(self):
+        action_seqs = self.get_valid_sequences()
         grids = []
         for seq in action_seqs:
             grids.append(
                 self.tetris_list[self.now_player]["tetris"].get_lookahead_grid(seq)
             )
-        return np.array(grids, dtype=np.float32)
+
+        # print("there are ", len(grids), "grids")
+        # grids = np.array(grids, dtype=np.float32)
+        grids = np.concatenate(grids, axis=1)
+        return grids.reshape(grids.shape[0], grids.shape[1], 1)
 
     def get_obs(self):
         if self._obs_type == "grid":
@@ -236,7 +241,7 @@ class TetrisInterface(abc.ABC):
             img = self.get_screen_shot()
 
         elif self._obs_type == "lookahead":
-            return self.get_lookahead_grids(self.get_valid_sequences())
+            return self.get_lookahead_grids()
         return img
 
     def random_action(self):

@@ -671,8 +671,16 @@ class Tetris(object):
         for action in action_seq:
             if action == 3 or action == 4:  # roataion
                 block, px, py, _ = rotate(grid, block, px, py, _dir=7 - action * 2)
-            elif action == 5 or action == 6:  # shift
-                px += 11 - action * 2
+            elif (
+                action == 5
+                or collideRight(self.grid, self.block, self.px, self.py) == False
+            ):  # shift
+                px += 1
+            elif (
+                action == 6
+                or collideLeft(self.grid, self.block, self.px, self.py) == False
+            ):  # shift
+                px -= 1
 
         # add the preexisting blocks to the board (idk why they do it like this, I just left it alone)
         for i in range(len(self.grid)):

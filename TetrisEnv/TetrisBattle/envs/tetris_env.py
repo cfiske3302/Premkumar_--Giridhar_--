@@ -59,6 +59,14 @@ class TetrisEnv(gym.Env, abc.ABC):
                 shape=list(self.game_interface.get_seen_grid().shape),
                 dtype=np.float32,
             )
+        elif obs_type == "lookahead":
+            self.observation_space = spaces.Box(
+                low=0,
+                high=1,
+                shape=list(self.game_interface.get_lookahead_grids().shape),
+                dtype=np.float32,
+            )
+            # print(self.observation_space)
 
         self.reset()
 

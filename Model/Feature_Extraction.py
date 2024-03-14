@@ -5,7 +5,7 @@ from torch import nn
 import gymnasium as gym
 
 
-class TetisFeatureExtractor(BaseFeaturesExtractor):
+class TetisFeatureExtractorLookAhead(BaseFeaturesExtractor):
     def __init__(
         self,
         observation_space: gym.Space,
@@ -25,7 +25,7 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
             nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=(1, 20), stride=1, padding=0),
+            nn.Conv2d(32, 64, kernel_size=(1, 20), stride=(1, 20), padding=0),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.Conv2d(64, 64, kernel_size=(3, 1), stride=1, padding=(1, 0)),
@@ -44,18 +44,18 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
                 .permute(0, 3, 1, 2)
             )
             # print(th.as_tensor(observation_space.sample()[None, None]).float().shape)
-            screens = th.cat(
-                (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
-            )
-            infos = self.flat(
-                th.cat(
-                    (observations[:, :, :, 10:17], observations[:, :, :, 27:]), axis=-1
-                )
-            )
+            # screens = th.cat(
+            #     (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
+            # )
+            # infos = self.flat(
+            #     th.cat(
+            #         (observations[:, :, :, 10:17], observations[:, :, :, 27:]), axis=-1
+            #     )
+            # )
             # print("screens", screens.shape)
             # print("self.cnn(screens)", self.cnn(screens).shape)
             # print("infos", infos.shape)
-            features = th.cat((self.cnn(screens), infos), axis=-1)
+            features = self.cnn(observations)
             n_flatten = features.shape[1]
 
         self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU())
@@ -63,17 +63,17 @@ class TetisFeatureExtractor(BaseFeaturesExtractor):
     def forward(self, observations: th.Tensor) -> th.Tensor:
         observations = observations.permute(0, 3, 1, 2)
         # observations = observations[:, None]
-        screens = th.cat(
-            (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
-        )
-        infos = self.flat(
-            th.cat((observations[:, :, :, 10:17], observations[:, :, :, 27:]), axis=-1)
-        )
+        # screens = th.cat(
+        #     (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1
+        # )
+        # infos = self.flat(
+        #     th.cat((observations[:, :, :, 10:17], observations[:, :, :, 27:]), axis=-1)
+        # )
 
-        return self.linear(th.cat((self.cnn(screens), infos), axis=-1))
+        return self.linear(self.cnn(observations))
 
 
-class TetrisActorCriticCnnPolicy(ActorCriticPolicy):
+class TetrisActorCriticCnnPolicyLookAhead(ActorCriticPolicy):
     """
     CNN policy class for actor-critic algorithms (has both policy and value prediction).
     Used by A2C, PPO and the likes.
@@ -118,7 +118,9 @@ class TetrisActorCriticCnnPolicy(ActorCriticPolicy):
         full_std: bool = True,
         use_expln: bool = False,
         squash_output: bool = False,
-        features_extractor_class: Type[BaseFeaturesExtractor] = TetisFeatureExtractor,
+        features_extractor_class: Type[
+            BaseFeaturesExtractor
+        ] = TetisFeatureExtractorLookAhead,
         features_extractor_kwargs: Optional[Dict[str, Any]] = None,
         share_features_extractor: bool = True,
         normalize_images: bool = True,

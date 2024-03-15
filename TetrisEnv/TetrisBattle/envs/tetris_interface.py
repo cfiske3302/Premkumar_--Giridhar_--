@@ -377,15 +377,23 @@ class TetrisSingleInterface(TetrisInterface):
     def reward_func(self, infos):
         # a block is placed
         if infos["is_fallen"]:
-            basic_reward = infos["scores"]
+            # basic_reward = infos["scores"]
+            basic_reward = 7
             # additional_reward = 0.01 if infos['holes'] == 0 else 0
 
-            additional_reward = (
-                -0.51 * infos["height_sum"]
-                + 0.76 * infos["cleared"] ** 2
-                - 0.36 * infos["holes"]
-                - 0.18 * infos["diff_sum"]
-            )
+            # additional_reward = (
+            #     -0.51 * infos["height_sum"]
+            #     + 0.76 * infos["cleared"] ** 2
+            #     - 0.36 * infos["holes"]
+            #     - 0.18 * infos["diff_sum"]
+            # )
+            additional_reward = 10 * infos["cleared"] ** 2
+            # additional_reward = (
+            #     -0.51 * infos["height_sum"]
+            #     + 0.76 * infos["cleared"] ** 2
+            #     - 0.36 * infos["holes"]
+            #     - 0.18 * infos["diff_sum"]
+            # )
             # additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = infos['cleared'] # + (0.2 if infos['holes'] == 0 else 0)
@@ -394,7 +402,7 @@ class TetrisSingleInterface(TetrisInterface):
             # print(infos['max_height'])
 
             # basic_reward = 4
-            # additional_reward = (
+            # additional_reward = (g
             #     -0.5 * infos["max_height"]
             #     + 10 * infos["cleared"]
             #     - 2 * infos["holes"]
@@ -573,7 +581,8 @@ class TetrisSingleInterface(TetrisInterface):
             infos["cleared"] = tetris.cleared
 
             # not super sure on these
-            infos["penalty"] = penalty_die
+            infos["penalty"] = -100
+            # infos["penalty"] = penalty_die
             infos["reward_notdie"] = reward_notdie
 
             self.last_infos = {

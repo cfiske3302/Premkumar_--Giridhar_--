@@ -81,7 +81,7 @@ class TetrisEnv(gym.Env, abc.ABC):
         # Reset the state of the environment to an initial state
 
         ob = self.game_interface.reset()
-
+        
         return ob
 
     def render(self, mode="human", close=False):
@@ -184,9 +184,9 @@ class TetrisSingleEnv(TetrisEnv):
 
             #     reward -= infos['holes'] / 20 / 1000
 
-        if infos['cleared'] != 0: 
-            print('wow i cleared a line!')
-            
+        # if infos['cleared'] != 0: 
+        #     print('wow i cleared a line!')
+
         return ob, reward, end, infos
 
 

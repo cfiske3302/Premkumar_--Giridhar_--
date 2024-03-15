@@ -280,7 +280,7 @@ class TetrisInterface(abc.ABC):
 
         if self._obs_type == "grid":
             current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
-            ob[GRID_WIDTH + current_block_id - 1][7] = 1
+            ob[GRID_WIDTH + current_block_id - 1][6] = 1
 
         return ob
 
@@ -325,7 +325,9 @@ class TetrisSingleInterface(TetrisInterface):
             # basic_reward = infos['scores']
             # additional_reward = 0.01 if infos['holes'] == 0 else 0
 
-            # additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
+            basic_reward = 1
+            additional_reward = -0.51 * infos['height_sum'] + 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
+            return basic_reward + additional_reward + infos['penalty']
             # additional_reward = 0.76 * infos['cleared'] - 0.36 * infos['holes'] - 0.18 * infos['diff_sum']
             # additional_reward = infos['cleared'] # + (0.2 if infos['holes'] == 0 else 0)
             # return basic_reward + 0.01 * additional_reward - infos['penalty']
@@ -337,7 +339,8 @@ class TetrisSingleInterface(TetrisInterface):
             # return basic_reward + additional_reward + infos['penalty']
 
             # Taiwan Paper Reward Function #
-            return 7 + 10* infos['cleared'] + infos['penalty'] - infos['holes']
+            # return 7 + 10 * infos['cleared'] + infos['penalty']
+            # return 7 + 40* infos['cleared'] + infos['penalty'] - infos['holes']
         
         # ie a block was not placed
         else:
@@ -422,7 +425,7 @@ class TetrisSingleInterface(TetrisInterface):
                 # scores -= 5
                 # penalty_die = self.total_reward * 0.8
                 # MODIFIED
-                penalty_die = -100
+                penalty_die = -30
 
                 end = 1
 
@@ -470,6 +473,10 @@ class TetrisSingleInterface(TetrisInterface):
 
         if tetris.is_fallen:
             height_sum, diff_sum, max_height, holes = get_infos(tetris.get_board())
+            infos['DQN_h_s'] = height_sum
+            infos['DQN_d_s'] = diff_sum
+            infos['DQN_m_h'] = max_height
+            infos['DQN_holes'] = holes
 
             # store the different of each information due to the move
 
@@ -521,7 +528,7 @@ class TetrisSingleInterface(TetrisInterface):
 
         if self._obs_type == "grid":
             current_block_id = PIECE_TYPE2NUM[tetris.block.block_type()]
-            ob[GRID_WIDTH + current_block_id - 1][7] = 1
+            ob[GRID_WIDTH + current_block_id - 1][6] = 1
 
         return ob, reward, end, infos
 

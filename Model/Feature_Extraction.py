@@ -1,11 +1,12 @@
 from stable_baselines3 import PPO
 from stable_baselines3.common.policies import *
+from stable_baselines3.dqn.policies import *
 from stable_baselines3.common.torch_layers import NatureCNN
 from torch import nn
 import gymnasium as gym
 
 
-class TetisFeatureExtractor(BaseFeaturesExtractor):
+class TetrisFeatureExtractor(BaseFeaturesExtractor):
     def __init__(
         self,
         observation_space: gym.Space,
@@ -118,7 +119,7 @@ class TetrisActorCriticCnnPolicy(ActorCriticPolicy):
         full_std: bool = True,
         use_expln: bool = False,
         squash_output: bool = False,
-        features_extractor_class: Type[BaseFeaturesExtractor] = TetisFeatureExtractor,
+        features_extractor_class: Type[BaseFeaturesExtractor] = TetrisFeatureExtractor,
         features_extractor_kwargs: Optional[Dict[str, Any]] = None,
         share_features_extractor: bool = True,
         normalize_images: bool = True,
@@ -140,6 +141,52 @@ class TetrisActorCriticCnnPolicy(ActorCriticPolicy):
             features_extractor_class,
             features_extractor_kwargs,
             share_features_extractor,
+            normalize_images,
+            optimizer_class,
+            optimizer_kwargs,
+        )
+
+
+
+class TetrisDQNCnnPolicy(DQNPolicy):
+    """
+    Policy class for DQN when using images as input.
+
+    :param observation_space: Observation space
+    :param action_space: Action space
+    :param lr_schedule: Learning rate schedule (could be constant)
+    :param net_arch: The specification of the policy and value networks.
+    :param activation_fn: Activation function
+    :param features_extractor_class: Features extractor to use.
+    :param normalize_images: Whether to normalize images or not,
+         dividing by 255.0 (True by default)
+    :param optimizer_class: The optimizer to use,
+        ``th.optim.Adam`` by default
+    :param optimizer_kwargs: Additional keyword arguments,
+        excluding the learning rate, to pass to the optimizer
+    """
+
+    def __init__(
+        self,
+        observation_space: spaces.Space,
+        action_space: spaces.Space,
+        lr_schedule: Schedule,
+        net_arch: Optional[List[int]] = None,
+        activation_fn: Type[nn.Module] = nn.ReLU,
+        features_extractor_class: Type[BaseFeaturesExtractor] = TetrisFeatureExtractor,
+        features_extractor_kwargs: Optional[Dict[str, Any]] = None,
+        normalize_images: bool = True,
+        optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
+        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        super().__init__(
+            observation_space,
+            action_space,
+            lr_schedule,
+            net_arch,
+            activation_fn,
+            features_extractor_class,
+            features_extractor_kwargs,
             normalize_images,
             optimizer_class,
             optimizer_kwargs,

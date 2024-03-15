@@ -226,7 +226,7 @@ def rotate(grid, block, px, py, _dir=1):
     tspin = 0
     if tspinCheck(grid, block, px, py) == True:
         tspin = 1
-        print("Tspin rotate")
+        # print("Tspin rotate")
 
     # return [block, px, py, tspin]
 

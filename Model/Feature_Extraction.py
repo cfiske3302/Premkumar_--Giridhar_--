@@ -38,6 +38,7 @@ class TetisFeatureExtractorLookAhead(BaseFeaturesExtractor):
         with th.no_grad():
             # print(th.as_tensor(observation_space.sample()[None]).float().shape)
             # print(type(th.as_tensor(observation_space.sample()[None]).float()))
+            # print(observation_space.shape)
             observations = (
                 th.as_tensor(observation_space.sample()[None])
                 .float()
@@ -61,7 +62,8 @@ class TetisFeatureExtractorLookAhead(BaseFeaturesExtractor):
         self.linear = nn.Sequential(nn.Linear(n_flatten, features_dim), nn.ReLU())
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
-        observations = observations.permute(0, 3, 1, 2)
+        observations = th.as_tensor(observations).permute(0, 3, 1, 2)
+        # print(observations.shape)
         # observations = observations[:, None]
         # screens = th.cat(
         #     (observations[:, :, :, :10], observations[:, :, :, 17:27]), axis=-1

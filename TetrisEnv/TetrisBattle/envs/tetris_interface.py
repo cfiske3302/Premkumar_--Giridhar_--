@@ -168,7 +168,7 @@ class TetrisInterface(abc.ABC):
         # Reference https://github.com/brendanberg01/TetrisAI/blob/master/ai.py
         possible_actions = []
         for move in range(-6, 5):
-            for rotate in range(-2, 3):
+            for rotate in range(-2, 2):
                 actions = []
                 if rotate > 0:
                     actions += [3 for _ in range(rotate)]

@@ -503,7 +503,8 @@ class TetrisSingleInterface(TetrisInterface):
 
                 # scores -= 5
                 # penalty_die = self.total_reward * 0.8
-                penalty_die = (self.time // 1000) - 130
+                penalty_die = -100
+                # penalty_die = (self.time // 1000) - 130
 
                 end = 1
 
@@ -581,8 +582,8 @@ class TetrisSingleInterface(TetrisInterface):
             infos["cleared"] = tetris.cleared
 
             # not super sure on these
-            infos["penalty"] = -100
-            # infos["penalty"] = penalty_die
+            # infos["penalty"] = -100
+            infos["penalty"] = penalty_die
             infos["reward_notdie"] = reward_notdie
 
             self.last_infos = {

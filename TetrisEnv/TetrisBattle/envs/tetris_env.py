@@ -112,36 +112,30 @@ class TetrisSingleEnv(TetrisEnv):
 
     def step(self, action):
         # Execute one time step within the environment
-        reward = 0
-        for i in range(10):
-            if i == 0:
-                action = action
-            else:
-                action = 0
 
-            ob, step_reward, end, infos = self.game_interface.act(action)
-            reward += step_reward
-            # if 'height_sum' in infos:
-            #     # print(infos)
-            #     reward -= infos['height_sum'] * 0.2
+        ob, reward, end, infos = self.game_interface.act(action)
 
-            self.accum_rewards += step_reward
-            self.n_steps += 1
+        # if 'height_sum' in infos:
+        #     # print(infos)
+        #     reward -= infos['height_sum'] * 0.2
 
-            # justin was here
-            end = bool(end)
-            if end:
-                infos["episode"] = {"r": self.accum_rewards, "l": self.n_steps}
-                break
+        self.accum_rewards += reward
+        self.n_steps += 1
 
-            # if len(infos) != 0:
-            #     reward += infos['height_sum'] / 50 / 1000
+        #justin was here
+        end = bool(end)
 
-            #     reward -= infos['diff_sum'] / 40 / 1000
+        if end:
+            infos["episode"] = {"r": self.accum_rewards, "l": self.n_steps}
 
-            #     reward -= infos['max_height'] / 30 / 1000
+        # if len(infos) != 0:
+        #     reward += infos['height_sum'] / 50 / 1000
 
-            #     reward -= infos['holes'] / 20 / 1000
+        #     reward -= infos['diff_sum'] / 40 / 1000
+
+        #     reward -= infos['max_height'] / 30 / 1000
+
+        #     reward -= infos['holes'] / 20 / 1000
 
         return ob, reward, end, infos
 

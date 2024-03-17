@@ -105,11 +105,6 @@ venv.bak/
 trained_models/
 .fuse_hidden*
 
-<<<<<<< HEAD:TetrisEnv/.gitignore
-train
-log
-=======
 #training stuff
 logs
 train
->>>>>>> 083b7c05200b619e8e95cc235f65353a10bdd551:.gitignore
